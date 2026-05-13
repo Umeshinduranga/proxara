@@ -1,10 +1,12 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import 'dotenv/config'
+import { redis } from './lib/redis'
+import { pool } from './lib/db'
 
 // Create the Fastify server instance
 const app = Fastify({
-  logger: true  // This prints every request to your terminal
+  logger: true
 })
 
 // Register CORS so the dashboard can talk to the gateway later
@@ -12,27 +14,45 @@ app.register(cors, {
   origin: true
 })
 
-// ── ROUTE 1: Health Check ────────────────────────────────
-// This tells us the server is alive
-app.get('/health', async (request, reply) => {
+// ── HEALTH CHECK ─────────────────────────────────────────
+// Now checks Redis AND PostgreSQL are alive
+app.get('/health', async () => {
+  let redisStatus = 'ok'
+
+  try {
+    await redis.ping()
+  } catch {
+    redisStatus = 'error'
+  }
+
+  let postgresStatus = 'ok'
+
+  try {
+    await pool.query('SELECT 1')
+  } catch {
+    postgresStatus = 'error'
+  }
+
   return {
-    status: 'ok',
+    status: redisStatus === 'ok' && postgresStatus === 'ok' ? 'ok' : 'degraded',
     version: '0.1.0',
-    name: 'Proxara Gateway'
+    name: 'Proxara Gateway',
+    services: {
+      redis: redisStatus,
+      postgres: postgresStatus
+    }
   }
 })
 
-// ── ROUTE 2: Proxy Placeholder ───────────────────────────
-// This is the route your AI agents will eventually call
-// For now it just confirms the route exists
-app.post('/v1/chat/completions', async (request, reply) => {
+// ── PROXY PLACEHOLDER ────────────────────────────────────
+app.post('/v1/chat/completions', async (request) => {
   return {
     message: 'Proxara is alive. Proxy logic coming soon.',
     receivedBody: request.body
   }
 })
 
-// ── START THE SERVER ─────────────────────────────────────
+// ── START ────────────────────────────────────────────────
 const PORT = Number(process.env.PORT) || 3001
 
 app.listen({ port: PORT }, (err) => {
