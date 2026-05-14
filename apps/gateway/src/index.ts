@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import 'dotenv/config'
 import { redis } from './lib/redis'
 import { pool } from './lib/db'
+import { proxyRoutes } from './routes/proxy'
 
 // Create the Fastify server instance
 const app = Fastify({
@@ -13,6 +14,9 @@ const app = Fastify({
 app.register(cors, {
   origin: true
 })
+
+// ── REGISTER ROUTES ───────────────────────────────────────
+app.register(proxyRoutes)
 
 // ── HEALTH CHECK ─────────────────────────────────────────
 // Now checks Redis AND PostgreSQL are alive
@@ -45,12 +49,7 @@ app.get('/health', async () => {
 })
 
 // ── PROXY PLACEHOLDER ────────────────────────────────────
-app.post('/v1/chat/completions', async (request) => {
-  return {
-    message: 'Proxara is alive. Proxy logic coming soon.',
-    receivedBody: request.body
-  }
-})
+// proxy route is registered from ./routes/proxy
 
 // ── START ────────────────────────────────────────────────
 const PORT = Number(process.env.PORT) || 3001
