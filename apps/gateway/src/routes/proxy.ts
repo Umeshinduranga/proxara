@@ -19,7 +19,7 @@ export async function proxyRoutes(app: FastifyInstance) {
 
     const startTime = Date.now()
 
-    try {
+        try {
       console.log(`Forwarding tenant ${request.tenantId} request to OpenAI...`)
 
       const response = await openai.chat.completions.create({
@@ -48,7 +48,25 @@ export async function proxyRoutes(app: FastifyInstance) {
 
       if (error.status === 429) {
         return reply.status(429).send({
+<<<<<<< HEAD
           error: 'OpenAI rate limit reached'
+=======
+          error: 'OpenAI rate limit reached',
+          message: 'Too many requests, please slow down'
+        })
+      }
+
+      if (error.status === 429) {
+        return reply.status(429).send({
+          error: 'OpenAI rate limit reached',
+          message: 'Too many requests, please slow down'
+        })
+      }
+
+      if (error.status === 500) {
+        return reply.status(502).send({
+          error: 'OpenAI is currently unavailable',
+          message: 'Try again in a few seconds'
         })
       }
 
@@ -60,3 +78,4 @@ export async function proxyRoutes(app: FastifyInstance) {
   })
 
 }
+      })
