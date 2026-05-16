@@ -1,5 +1,4 @@
 import { FastifyInstance } from 'fastify'
-import { FastifyInstance } from 'fastify'
 import { openai } from '../lib/openai'
 import { authMiddleware } from '../middleware/auth'
 
