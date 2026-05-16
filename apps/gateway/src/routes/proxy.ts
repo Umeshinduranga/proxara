@@ -47,20 +47,10 @@ export async function proxyRoutes(app: FastifyInstance) {
       }
 
       if (error.status === 429) {
-        return reply.status(429).send({
-<<<<<<< HEAD
-          error: 'OpenAI rate limit reached'
-=======
-          error: 'OpenAI rate limit reached',
-          message: 'Too many requests, please slow down'
-        })
-      }
-
-      if (error.status === 429) {
-        return reply.status(429).send({
-          error: 'OpenAI rate limit reached',
-          message: 'Too many requests, please slow down'
-        })
+          return reply.status(429).send({
+            error: 'OpenAI rate limit reached',
+            message: 'Too many requests, please slow down'
+          })
       }
 
       if (error.status === 500) {
@@ -78,4 +68,4 @@ export async function proxyRoutes(app: FastifyInstance) {
   })
 
 }
-      })
+      
