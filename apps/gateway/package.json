@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "seed": "tsx src/seed.ts"
   },
   "dependencies": {
     "@fastify/cors": "9.0.1",

@@ -1,9 +1,13 @@
 import { FastifyInstance } from 'fastify'
+import { FastifyInstance } from 'fastify'
 import { openai } from '../lib/openai'
+import { authMiddleware } from '../middleware/auth'
 
 export async function proxyRoutes(app: FastifyInstance) {
 
-  app.post('/v1/chat/completions', async (request, reply) => {
+  app.post('/v1/chat/completions', {
+    preHandler: authMiddleware
+  }, async (request, reply) => {
 
     const body = request.body as any
 
@@ -17,7 +21,7 @@ export async function proxyRoutes(app: FastifyInstance) {
     const startTime = Date.now()
 
     try {
-      console.log(`📤 Forwarding request to OpenAI...`)
+      console.log(`Forwarding tenant ${request.tenantId} request to OpenAI...`)
 
       const response = await openai.chat.completions.create({
         model: body.model || 'gpt-4o-mini',
@@ -65,3 +69,4 @@ export async function proxyRoutes(app: FastifyInstance) {
   })
 
 }
+
