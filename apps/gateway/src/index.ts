@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import 'dotenv/config'
 import { redis } from './lib/redis'
 import { pool } from './lib/db'
+import './lib/pinecone'
 import { proxyRoutes } from './routes/proxy'
 
 // Create the Fastify server instance
