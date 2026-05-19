@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { openai } from '../lib/openai'
 import { authMiddleware } from '../middleware/auth'
 import { circuitBreakerMiddleware } from '../middleware/circuitBreaker'
+import { checkCache, saveToCache } from '../services/cache'
 
 export async function proxyRoutes(app: FastifyInstance) {
 
@@ -20,6 +21,45 @@ export async function proxyRoutes(app: FastifyInstance) {
 
     const startTime = Date.now()
 
+    const userPrompt = body.messages
+      .filter((message: any) => message.role === 'user')
+      .map((message: any) => message.content)
+      .join(' ')
+
+    const { hit, response: cachedResponse, vector } = await checkCache(
+      userPrompt,
+      request.tenantId
+    )
+
+    if (hit && cachedResponse) {
+      const latency = Date.now() - startTime
+
+      console.log(`⚡ Returning cached response in ${latency}ms`)
+
+      return reply.send({
+        id: `cache-${Date.now()}`,
+        object: 'chat.completion',
+        model: body.model || 'gpt-4o-mini',
+        choices: [{
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: cachedResponse
+          },
+          finish_reason: 'stop'
+        }],
+        usage: {
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          total_tokens: 0
+        },
+        proxara: {
+          cached: true,
+          latencyMs: latency
+        }
+      })
+    }
+
     try {
       console.log(`📤 Tenant ${request.tenantId} forwarding to OpenAI...`)
 
@@ -32,12 +72,24 @@ export async function proxyRoutes(app: FastifyInstance) {
 
       const latency = Date.now() - startTime
       const tokensUsed = response.usage?.total_tokens || 0
+      const assistantMessage = response.choices[0].message.content || ''
+
+      if (vector) {
+        saveToCache(userPrompt, assistantMessage, request.tenantId, vector)
+          .catch((error) => console.error(error))
+      }
 
       await request.circuitBreaker.recordSuccess()
 
       console.log(`✅ Success - ${latency}ms - ${tokensUsed} tokens`)
 
-      return reply.send(response)
+      return reply.send({
+        ...response,
+        proxara: {
+          cached: false,
+          latencyMs: latency
+        }
+      })
 
     } catch (error: any) {
       const latency = Date.now() - startTime
