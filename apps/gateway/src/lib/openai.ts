@@ -33,6 +33,24 @@ if (key && !key.startsWith('sk-your-real')) {
           }
         }
       }
+    },
+    embeddings: {
+      create: async (opts: any) => {
+        // Mock embeddings - deterministic based on input text for testing
+        // Convert text to a simple hash-based embedding
+        const text = typeof opts.input === 'string' ? opts.input : opts.input[0]
+        const hash = text.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
+        const embedding = Array(1536).fill(0).map((_: any, i: number) => {
+          return Math.sin(hash * (i + 1) / 100) * 0.5 + 0.5
+        })
+        
+        return {
+          object: 'list',
+          data: [{ embedding, index: 0 }],
+          model: 'text-embedding-3-small',
+          usage: { prompt_tokens: 5, total_tokens: 5 }
+        }
+      }
     }
   }
 }
