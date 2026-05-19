@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@fastify/cors": "9.0.1",
+    "@pinecone-database/pinecone": "^5.1.2",
     "dotenv": "16.4.5",
     "fastify": "4.26.0",
     "ioredis": "5.4.1",
