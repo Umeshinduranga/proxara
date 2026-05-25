@@ -27,3 +27,5 @@ Thumbs.db
 
 # Local test helper
 apps/gateway/test.js
+apps/gateway/test-rerun.js
+apps/gateway/test-stage1.js
