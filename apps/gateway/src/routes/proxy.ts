@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify'
-import { openai } from '../lib/openai'
 import { authMiddleware } from '../middleware/auth'
 import { circuitBreakerMiddleware } from '../middleware/circuitBreaker'
 import { checkCache, saveToCache } from '../services/cache'
+import { routeToLLM } from '../services/router'
 
 export async function proxyRoutes(app: FastifyInstance) {
 
@@ -60,55 +60,48 @@ export async function proxyRoutes(app: FastifyInstance) {
       })
     }
 
+    // ── STEP 2: ROUTE TO LLM WITH FAILOVER ──────────────
     try {
-      console.log(`📤 Tenant ${request.tenantId} forwarding to OpenAI...`)
-
-      const response = await openai.chat.completions.create({
-        model: body.model || 'gpt-4o-mini',
-        messages: body.messages,
-        temperature: body.temperature ?? 0.7,
-        max_tokens: body.max_tokens ?? 1000,
-      })
-
+      const result = await routeToLLM(body)
       const latency = Date.now() - startTime
-      const tokensUsed = response.usage?.total_tokens || 0
-      const assistantMessage = response.choices[0].message.content || ''
 
+      // Save to cache for next time — fire and forget
       if (vector) {
-        saveToCache(userPrompt, assistantMessage, request.tenantId, vector)
-          .catch((error) => console.error(error))
+        saveToCache(userPrompt, result.content, request.tenantId, vector)
+          .catch(console.error)
       }
 
       await request.circuitBreaker.recordSuccess()
 
-      console.log(`✅ Success - ${latency}ms - ${tokensUsed} tokens`)
+      console.log(`✅ ${result.provider} responded in ${latency}ms — ${result.usage.totalTokens} tokens`)
 
       return reply.send({
-        ...response,
+        id: `proxara-${Date.now()}`,
+        object: 'chat.completion',
+        model: result.model,
+        choices: [{
+          index: 0,
+          message: { role: 'assistant', content: result.content },
+          finish_reason: 'stop'
+        }],
+        usage: {
+          prompt_tokens: result.usage.promptTokens,
+          completion_tokens: result.usage.completionTokens,
+          total_tokens: result.usage.totalTokens
+        },
         proxara: {
           cached: false,
+          provider: result.provider,
           latencyMs: latency
         }
       })
 
     } catch (error: any) {
-      const latency = Date.now() - startTime
       await request.circuitBreaker.recordFailure()
+      console.error(`❌ All providers failed:`, error.message)
 
-      console.error(`❌ Failed after ${latency}ms - ${error.message}`)
-
-      if (error.status === 401) {
-        return reply.status(401).send({ error: 'Invalid OpenAI API key' })
-      }
-
-      if (error.status === 429) {
-        return reply.status(429).send({
-          error: 'OpenAI rate limit reached'
-        })
-      }
-
-      return reply.status(500).send({
-        error: 'Gateway error',
+      return reply.status(502).send({
+        error: 'All providers failed',
         message: error.message
       })
     }
