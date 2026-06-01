@@ -5,6 +5,7 @@ import { redis } from './lib/redis'
 import { pool } from './lib/db'
 import './lib/pinecone'
 import { proxyRoutes } from './routes/proxy'
+import { createTables } from './lib/schema'
 
 // Create the Fastify server instance
 const app = Fastify({
@@ -55,11 +56,15 @@ app.get('/health', async () => {
 // ── START ────────────────────────────────────────────────
 const PORT = Number(process.env.PORT) || 3001
 
-app.listen({ port: PORT }, (err) => {
+app.listen({ port: PORT }, async (err) => {
   if (err) {
     app.log.error(err)
     process.exit(1)
   }
+
+  // Create database tables if they don't exist
+  await createTables()
+
   console.log(`
   ██████╗ ██████╗  ██████╗ ██╗  ██╗ █████╗ ██████╗  █████╗ 
   ██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝██╔══██╗██╔══██╗██╔══██╗
