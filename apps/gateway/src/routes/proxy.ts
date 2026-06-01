@@ -3,6 +3,7 @@ import { authMiddleware } from '../middleware/auth'
 import { circuitBreakerMiddleware } from '../middleware/circuitBreaker'
 import { checkCache, saveToCache } from '../services/cache'
 import { routeToLLM } from '../services/router'
+import { logRequest } from '../services/logger'
 
 export async function proxyRoutes(app: FastifyInstance) {
 
@@ -36,6 +37,16 @@ export async function proxyRoutes(app: FastifyInstance) {
 
       console.log(`⚡ Returning cached response in ${latency}ms`)
 
+      // Log cache hit
+      logRequest({
+        tenantId: request.tenantId,
+        prompt: userPrompt,
+        tokensUsed: 0,
+        cacheHit: true,
+        provider: 'cache',
+        latencyMs: latency
+      }).catch(console.error)
+
       return reply.send({
         id: `cache-${Date.now()}`,
         object: 'chat.completion',
@@ -64,6 +75,16 @@ export async function proxyRoutes(app: FastifyInstance) {
     try {
       const result = await routeToLLM(body)
       const latency = Date.now() - startTime
+
+      // Log LLM request
+      logRequest({
+        tenantId: request.tenantId,
+        prompt: userPrompt,
+        tokensUsed: result.usage.totalTokens,
+        cacheHit: false,
+        provider: result.provider,
+        latencyMs: latency
+      }).catch(console.error)
 
       // Save to cache for next time — fire and forget
       if (vector) {
