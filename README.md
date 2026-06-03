@@ -6,12 +6,13 @@
 		failover in two lines of code.
 	</p>
 
-	<p>
-		<img src="https://img.shields.io/badge/Node.js-20+-green" />
-		<img src="https://img.shields.io/badge/TypeScript-5.3-blue" />
-		<img src="https://img.shields.io/badge/License-MIT-yellow" />
-		<img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" />
-	</p>
+  <p>
+    <img src="https://img.shields.io/badge/Node.js-20+-green" />
+    <img src="https://img.shields.io/badge/TypeScript-5.3-blue" />
+    <img src="https://img.shields.io/badge/License-MIT-yellow" />
+    <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" />
+  </p>
+
 </div>
 
 ---
@@ -290,6 +291,6 @@ MIT — free to use, modify, and deploy.
 ---
 
 <div align="center">
-	<p>Built with ❤️ by <a href="https://github.com/yourusername">your name</a></p>
+	<p>Built with ❤️ by <a href="https://github.com/Umeshinduranga">Umesh Induranga</a></p>
 	<p>If this helped you, please ⭐ the repo</p>
 </div>
