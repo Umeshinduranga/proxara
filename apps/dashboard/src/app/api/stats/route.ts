@@ -46,9 +46,11 @@ export async function GET() {
       providers: providerResult.rows
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unable to load dashboard stats'
+
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500 }
     )
   }
