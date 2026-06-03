@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   BarChart,
   Bar,
@@ -18,6 +19,7 @@ import {
   Shield,
   Sparkles,
   TrendingUp,
+  Key,
   Zap,
   type LucideIcon,
 } from 'lucide-react'
@@ -184,6 +186,13 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/keys"
+                className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:border-sky-300 hover:text-sky-700"
+              >
+                <Key className="h-4 w-4" />
+                API Keys
+              </Link>
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
                 Gateway online
