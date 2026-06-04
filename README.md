@@ -6,12 +6,13 @@
 		failover in two lines of code.
 	</p>
 
-	<p>
-		<img src="https://img.shields.io/badge/Node.js-20+-green" />
-		<img src="https://img.shields.io/badge/TypeScript-5.3-blue" />
-		<img src="https://img.shields.io/badge/License-MIT-yellow" />
-		<img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" />
-	</p>
+  <p>
+    <img src="https://img.shields.io/badge/Node.js-20+-green" />
+    <img src="https://img.shields.io/badge/TypeScript-5.3-blue" />
+    <img src="https://img.shields.io/badge/License-MIT-yellow" />
+    <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" />
+  </p>
+
 </div>
 
 ---
@@ -23,14 +24,14 @@
 ## What is Proxara?
 
 Proxara is an open source AI gateway that sits between 
-your application and LLM providers like OpenAI.
+your application and LLM providers like Claude/Gemini/OpenAI.
 
 ```
 Your App → Proxara → OpenAI / Groq / Anthropic
 ```
 
 Every request passes through four intelligent layers 
-automatically — no changes to your existing code needed.
+automatically - no changes to your existing code needed.
 
 ---
 
@@ -77,15 +78,15 @@ cache namespace.
 
 ---
 
-## Quick Start — Two Lines of Code
+## Quick Start -  Two Lines of Code
 
 ```javascript
-// BEFORE — direct OpenAI
+// BEFORE - direct OpenAI
 const client = new OpenAI({
 	apiKey: 'sk-your-openai-key'
 })
 
-// AFTER — through Proxara
+// AFTER - through Proxara
 // Only these two lines change
 const client = new OpenAI({
 	apiKey: 'prx_live_your-proxara-key',
@@ -113,40 +114,39 @@ client = OpenAI(
 ---
 
 ## Architecture
-
 ```
-Incoming Request
-			│
-			▼
+        Incoming Request
+             │
+             ▼
 ┌─────────────────────────┐
 │   Layer 1: Auth          │
 │   Validate Proxara key   │
 │   Identify tenant        │
 └────────────┬────────────┘
-						 │
-						 ▼
+             │
+             ▼
 ┌─────────────────────────┐
 │   Layer 2: Circuit       │
 │   Breaker (Redis)        │
 │   Block failing agents   │
 └────────────┬────────────┘
-						 │
-						 ▼
+             │
+             ▼
 ┌─────────────────────────┐
 │   Layer 3: Semantic      │
 │   Cache (Pinecone)       │
 │   Return cached answers  │
 └────────────┬────────────┘
-						 │
-						 ▼
+             │
+             ▼
 ┌─────────────────────────┐
 │   Layer 4: Router        │
 │   OpenAI → Groq failover │
 │   Log to PostgreSQL      │
 └────────────┬────────────┘
-						 │
-						 ▼
-				LLM Response
+             │
+             ▼
+        LLM Response
 ```
 
 ---
@@ -290,6 +290,6 @@ MIT — free to use, modify, and deploy.
 ---
 
 <div align="center">
-	<p>Built with ❤️ by <a href="https://github.com/yourusername">your name</a></p>
+	<p>Built by <a href="https://github.com/Umeshinduranga">Umesh Induranga</a></p>
 	<p>If this helped you, please ⭐ the repo</p>
 </div>
