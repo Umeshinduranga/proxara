@@ -290,6 +290,6 @@ MIT — free to use, modify, and deploy.
 ---
 
 <div align="center">
-	<p>Built with ❤️ by <a href="https://github.com/Umeshinduranga">Umesh Induranga</a></p>
+	<p>Built by <a href="https://github.com/Umeshinduranga">Umesh Induranga</a></p>
 	<p>If this helped you, please ⭐ the repo</p>
 </div>
